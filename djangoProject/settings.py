@@ -25,6 +25,10 @@ if os.path.exists(config_path):
     with open(config_path) as config_file:
         config = json.load(config_file)
 
+# Function to convert string representations of boolean values
+def str_to_bool(value):
+    return str(value).lower() in ("1", "true", "yes", "y")
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
@@ -32,7 +36,7 @@ if os.path.exists(config_path):
 SECRET_KEY = os.getenv('SECRET_KEY', config.get('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = bool(int(os.getenv('DEBUG', int(config.get('DEBUG', False)))))
+DEBUG = str_to_bool(os.getenv('DEBUG', config.get('DEBUG', 'False')))
 
 # ALLOWED_HOSTS should always be a list, so handle it carefully
 allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
