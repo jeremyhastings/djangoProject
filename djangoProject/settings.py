@@ -11,16 +11,19 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
+import json
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-import json
-import os
+# Try to load configuration from config.json
+config = {}
+config_path = os.path.join(BASE_DIR, 'config.json')
 
-# Load configuration from config.json
-with open(os.path.join(BASE_DIR, 'config.json')) as config_file:
-    config = json.load(config_file)
+if os.path.exists(config_path):
+    with open(config_path) as config_file:
+        config = json.load(config_file)
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
@@ -29,9 +32,14 @@ with open(os.path.join(BASE_DIR, 'config.json')) as config_file:
 SECRET_KEY = os.getenv('SECRET_KEY', config.get('SECRET_KEY'))
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.getenv('DEBUG', config.get('DEBUG'))
+DEBUG = bool(int(os.getenv('DEBUG', int(config.get('DEBUG', False)))))
 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', config.get('ALLOWED_HOSTS')).split(',')
+# ALLOWED_HOSTS should always be a list, so handle it carefully
+allowed_hosts_env = os.getenv('ALLOWED_HOSTS')
+if allowed_hosts_env:
+    ALLOWED_HOSTS = allowed_hosts_env.split(',')
+else:
+    ALLOWED_HOSTS = config.get('ALLOWED_HOSTS', [])
 
 
 # Application definition
